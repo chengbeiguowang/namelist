@@ -3,6 +3,10 @@ import os
 import openpyxl
 from openpyxl.styles import Alignment
 from openpyxl.worksheet.worksheet import Worksheet
+from openpyxl.styles import Font
+
+FONT_SIZE = 14
+COLUMN_SUM = 12
 
 
 def handle_namelist(race_path, workbook_path):
@@ -46,6 +50,14 @@ def handle_namelist(race_path, workbook_path):
             else:
                 fill_cell_link(cell, files[0], team_dir)
 
+        # 累加和
+        cell = sheet.cell(row, column=COLUMN_SUM)
+        cell.value = "=SUM({}:{})".format("D" + str(row), "K" + str(row))
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrapText=True)
+
+        # 设置列高
+        sheet.row_dimensions[row].height = 100
+
         row += 1
 
     wb.save(workbook_path)
@@ -54,13 +66,17 @@ def handle_namelist(race_path, workbook_path):
 def fill_cell_link(cell, file_name, link):
     cell.value = file_name
     cell.hyperlink = link
-    cell.style = "Hyperlink"
+    font = Font('宋体', color='0563C1', bold=False, size=12)
+    cell.font = font
+    # cell.style = "Hyperlink"
     cell.alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
 
 
 def fill_cell(cell, content):
     cell.value = content
     cell.alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
+    font = Font('宋体', color='000000', bold=False, size=FONT_SIZE)
+    cell.font = font
 
 
 def alignment():
@@ -78,5 +94,6 @@ def clean_up(sheet: Worksheet, row_start, column_max):
         for i in range(1, column_max + 1):
             cell = sheet.cell(_row_start, i)
             cell.value = None
+        sheet.cell(_row_start, COLUMN_SUM).value = None
         _row_start += 1
         cell = sheet.cell(_row_start, 1)
