@@ -18,7 +18,8 @@ xlsx_name_array = [
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    file_base = os.path.realpath(os.path.dirname(sys.argv[0])) + "\\"
+    # file_base = os.path.realpath(os.path.dirname(sys.argv[0])) + "\\"
+    file_base = ".\\"
     print(file_base)
 
     for i in range(0, len(race_name_array)):

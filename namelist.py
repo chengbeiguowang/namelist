@@ -30,14 +30,19 @@ def handle_namelist(race_path, workbook_path):
             fill_cell_link(cell, files[0], team_dir + "\\" + files[0])
         else:
             zip_file = None
+            rar_file = None
             for file in files:
                 if os.path.splitext(file)[-1][1:] == "zip":
                     zip_file = file
                     break
+                if os.path.splitext(file)[-1][1:] == "rar":
+                    rar_file = file
+                    break
 
-            if zip_file is None:
+            if zip_file is not None:
                 fill_cell_link(cell, zip_file, team_dir)
-
+            elif rar_file is not None:
+                fill_cell_link(cell, rar_file, team_dir)
             else:
                 fill_cell_link(cell, files[0], team_dir)
 
@@ -45,18 +50,22 @@ def handle_namelist(race_path, workbook_path):
 
     wb.save(workbook_path)
 
+
 def fill_cell_link(cell, file_name, link):
     cell.value = file_name
     cell.hyperlink = link
     cell.style = "Hyperlink"
-    cell.alignment = Alignment(horizontal='left', vertical='center',wrapText=True)
+    cell.alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
+
 
 def fill_cell(cell, content):
-    cell.value =content
+    cell.value = content
     cell.alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
+
 
 def alignment():
     return Alignment(horizontal='left', vertical='center', wrapText=True)
+
 
 def is_empty(value) -> bool:
     return value is None or value == ''
