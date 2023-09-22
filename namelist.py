@@ -33,20 +33,42 @@ def handle_namelist(race_path, workbook_path):
         if len(files) == 1:
             fill_cell_link(cell, files[0], team_dir + "\\" + files[0])
         else:
-            zip_file = None
-            rar_file = None
+            compress_file = None
+            dir_path = None
             for file in files:
-                if os.path.splitext(file)[-1][1:] == "zip":
-                    zip_file = file
-                    break
-                if os.path.splitext(file)[-1][1:] == "rar":
-                    rar_file = file
-                    break
+                if os.path.splitext(file)[-1][1:] == "zip" or os.path.splitext(file)[-1][1:] == "rar":
+                    compress_file = file
+                elif os.path.isdir(team_dir + "\\" + file):
+                    dir_path = file
 
-            if zip_file is not None:
-                fill_cell_link(cell, zip_file, team_dir)
-            elif rar_file is not None:
-                fill_cell_link(cell, rar_file, team_dir)
+            # 压缩文件
+            if compress_file is not None and dir_path is not None:
+                work_dir = team_dir + "\\" + dir_path
+                star_file = None
+                word_file = None  # contains wps doc docx
+                pdf_file = None
+                ppt_file = None  # ppt pptx
+
+                for file in os.listdir(work_dir):
+                    tail = os.path.splitext(file)[-1][1:]
+                    if file.__contains__("【@】"):
+                        star_file = file
+                    elif tail == "docx" or tail == "doc" or tail == "wps":
+                        word_file = file
+                    elif tail == "pdf":
+                        pdf_file = file
+                    elif tail == "pptx" or tail == "ppt":
+                        ppt_file = file
+                if star_file is not None:
+                    fill_cell_link(cell, compress_file, work_dir + "\\" + star_file)
+                elif word_file is not None:
+                    fill_cell_link(cell, compress_file, work_dir + "\\" + word_file)
+                elif pdf_file is not None:
+                    fill_cell_link(cell, compress_file, work_dir + "\\" + pdf_file)
+                elif ppt_file is not None:
+                    fill_cell_link(cell, compress_file, work_dir + "\\" + ppt_file)
+                else:
+                    fill_cell_link(cell, compress_file, work_dir)
             else:
                 fill_cell_link(cell, files[0], team_dir)
 
