@@ -2,6 +2,7 @@
 import os.path
 import sys
 
+from lawnamelist import handle_law_namelist
 from namelist import handle_namelist
 
 # Press Shift+F10 to execute it or replace it with your code.
@@ -21,13 +22,16 @@ if __name__ == '__main__':
     # file_base = os.path.realpath(os.path.dirname(sys.argv[0])) + "\\"
     file_base = ".\\"
     print(file_base)
+    handle_law_namelist('G:\数字政法赛道评分资料', 'G:\数字政法赛道评分资料\数字政法赛道专家评分表(1129).xlsx')
 
+    print("done")
+
+'''
     for i in range(0, len(race_name_array)):
         race_name = race_name_array[i]
         xlsx_name = xlsx_name_array[i]
         if os.path.exists(file_base + race_name) and os.path.exists(file_base + xlsx_name):
             handle_namelist(file_base + race_name, file_base + xlsx_name)
-
-    print("done")
+'''
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
