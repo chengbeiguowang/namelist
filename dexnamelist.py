@@ -2,13 +2,13 @@ import os
 
 import openpyxl
 from openpyxl.styles import Alignment
-from openpyxl.worksheet.worksheet import Worksheet
 from openpyxl.styles import Font
 
-from utils import fill_cell, clean_up
+from utils import fill_cell, clean_up, fill_cell_link
 
 FONT_SIZE = 16
 COLUMN_SUM = 12
+BACK_SLASH = "\\"
 
 
 class Team:
@@ -21,11 +21,34 @@ class Team:
     def __str__(self):
         return str(self.name) + ' ' + str(self.race_name) + ' ' + str(self.race_partition) + ' ' + str(self.work_name)
 
-def scdex():
-    race_dict = read_team_output('', 'E:\要素大赛\科技创新\参赛清单汇总整理- 0821@1230.xlsx')
-    write_to_score_sheet(race_dict, 'E:\要素大赛\科技创新\数据要素x大赛初赛专家评分表.xlsx')
 
-def write_to_score_sheet(race_dict, workbook_path):
+race_array = ['工业制造',
+              '现代农业',
+              '商贸流通',
+              '交通运输',
+              '金融服务',
+              '科技创新',
+              '文化旅游',
+              '医疗健康',
+              '应急管理',
+              '气象服务',
+              '城市治理',
+              '绿色低碳']
+
+
+def scdex(input_namelist, file_base):
+    race_dict = read_namelist_to_team(input_namelist)
+    table_prefix = '2024年“数据要素×”大赛四川分赛初赛评分表_'
+    table_subfix = '.xlsx'
+    for partition in race_array:
+        dest_excel = file_base + BACK_SLASH + partition + BACK_SLASH + table_prefix + partition + table_subfix
+        dest_dir = file_base + BACK_SLASH + partition
+        if not os.path.isdir(dest_dir) or not os.path.exists(dest_excel):
+            continue
+        write_to_score_sheet(race_dict, dest_excel, dest_dir)
+
+
+def write_to_score_sheet(race_dict, workbook_path, file_base):
     wb = openpyxl.load_workbook(workbook_path)
     sheet = wb['Sheet1']
 
@@ -35,15 +58,25 @@ def write_to_score_sheet(race_dict, workbook_path):
     row = 5
     for key in race_partition_dict:
         partition_array = race_partition_dict[key]
+        partition_base = file_base + BACK_SLASH + key
         for i in range(len(partition_array)):
             team: Team = partition_array[i]
             if team.work_name is None or team.work_name == '':
                 continue
+
+            team_base = partition_base + BACK_SLASH + team.work_name
+            program_base = team_base + BACK_SLASH + '项目申报书'
+
+            ## tmp logic
+            if not os.path.isdir(program_base):
+                continue
+
             fill_cell(sheet.cell(row, column=1), str(row - 4))
             fill_cell(sheet.cell(row, column=2), str(team.race_name))
             fill_cell(sheet.cell(row, column=3), str(team.race_partition))
             fill_cell(sheet.cell(row, column=4), str(team.name))
-            fill_cell(sheet.cell(row, column=5), str(team.work_name))
+            link_file = program_base + BACK_SLASH + get_program_file_name(program_base)
+            fill_cell_link(sheet.cell(row, column=5), str(team.work_name), link_file)
 
             # 累加和
             cell = sheet.cell(row, column=10)
@@ -58,7 +91,18 @@ def write_to_score_sheet(race_dict, workbook_path):
     wb.save(workbook_path)
 
 
-def read_team_output(race_path, workbook_path) -> dict:
+def get_program_file_name(work_dir) -> str:
+    for file in os.listdir(work_dir):
+        tail = os.path.splitext(file)[-1][1:]
+        if file.__contains__("申报书"):
+            return file
+        elif tail == "pdf":
+            return file
+
+    print("Error in find program file: " + str(work_dir))
+
+
+def read_namelist_to_team(workbook_path) -> dict:
     # sheet
     wb = openpyxl.load_workbook(workbook_path)
     sheet = wb['参赛团队列表824']

@@ -10,6 +10,15 @@ def fill_cell(cell, content, font_size=16):
     cell.font = font
 
 
+def fill_cell_link(cell, file_name, link, font_size=16):
+    cell.value = file_name
+    cell.hyperlink = link
+    font = Font('宋体', color='0563C1', bold=False, size=font_size)
+    cell.font = font
+    # cell.style = "Hyperlink"
+    cell.alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
+
+
 def is_empty(value) -> bool:
     return value is None or value == ''
 
