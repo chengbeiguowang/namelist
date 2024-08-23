@@ -2,6 +2,8 @@
 import os.path
 import sys
 
+from dexnamelist import scdex
+
 from lawnamelist import handle_law_namelist
 from namelist import handle_namelist
 
@@ -19,12 +21,17 @@ xlsx_name_array = [
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
+    scdex('E:\\tele\\参赛清单汇总整理- 0823@1552.xlsx', 'E:\要素大赛')
+
+
+'''
     # file_base = os.path.realpath(os.path.dirname(sys.argv[0])) + "\\"
     file_base = ".\\"
     print(file_base)
     handle_law_namelist('G:\数字政法赛道评分资料', 'G:\数字政法赛道评分资料\数字政法赛道专家评分表(1129).xlsx')
 
     print("done")
+'''
 
 '''
     for i in range(0, len(race_name_array)):

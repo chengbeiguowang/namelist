@@ -78,7 +78,7 @@ def write_to_score_sheet(race_dict, workbook_path, file_base):
                 fill_cell(sheet.cell(row, column=2), str(team.race_name))
                 fill_cell(sheet.cell(row, column=3), str(team.race_partition))
                 fill_cell(sheet.cell(row, column=4), str(team.name))
-                link_file = team_base + BACK_SLASH + get_program_file_name(team_base)
+                link_file = ".\\" + key + BACK_SLASH + team_prefix + team.name + team_subfix + BACK_SLASH + get_program_file_name(team_base)
                 fill_cell_link(sheet.cell(row, column=5), str(team.work_name), link_file)
 
                 # 累加和
