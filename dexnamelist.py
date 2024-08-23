@@ -117,10 +117,11 @@ def read_namelist_to_team(workbook_path) -> dict:
     race_dict = {}
 
     count = 0
-    for row in range(2, sheet.max_row):
+    for row in range(2, sheet.max_row + 1):
         # 参赛团队
         team_name = sheet.cell(row, column=3).value
         if team_name in team_set:
+            print(team_name)
             continue
 
         team_set.add(team_name)
