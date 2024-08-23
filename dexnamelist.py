@@ -54,39 +54,42 @@ def write_to_score_sheet(race_dict, workbook_path, file_base):
 
     clean_up(sheet, 5, 10)
 
-    race_partition_dict = race_dict['科技创新']
-    row = 5
-    for key in race_partition_dict:
-        partition_array = race_partition_dict[key]
-        partition_base = file_base + BACK_SLASH + key
-        for i in range(len(partition_array)):
-            team: Team = partition_array[i]
-            if team.work_name is None or team.work_name == '':
-                continue
+    for race_key in race_dict:
+        race_partition_dict = race_dict[race_key]
+        row = 5
+        for key in race_partition_dict:
+            partition_array = race_partition_dict[key]
+            partition_base = file_base + BACK_SLASH + key
+            for i in range(len(partition_array)):
+                team: Team = partition_array[i]
+                if team.work_name is None or team.work_name == '':
+                    continue
 
-            team_base = partition_base + BACK_SLASH + team.work_name
-            program_base = team_base + BACK_SLASH + '项目申报书'
+                team_prefix = '【'
+                team_subfix = '】'
+                team_base = partition_base + BACK_SLASH + team_prefix + team.name + team_subfix
+                # program_base = team_base + BACK_SLASH + '项目申报书'
 
-            ## tmp logic
-            if not os.path.isdir(program_base):
-                continue
+                ## tmp logic
+                if not os.path.isdir(team_base):
+                    continue
 
-            fill_cell(sheet.cell(row, column=1), str(row - 4))
-            fill_cell(sheet.cell(row, column=2), str(team.race_name))
-            fill_cell(sheet.cell(row, column=3), str(team.race_partition))
-            fill_cell(sheet.cell(row, column=4), str(team.name))
-            link_file = program_base + BACK_SLASH + get_program_file_name(program_base)
-            fill_cell_link(sheet.cell(row, column=5), str(team.work_name), link_file)
+                fill_cell(sheet.cell(row, column=1), str(row - 4))
+                fill_cell(sheet.cell(row, column=2), str(team.race_name))
+                fill_cell(sheet.cell(row, column=3), str(team.race_partition))
+                fill_cell(sheet.cell(row, column=4), str(team.name))
+                link_file = team_base + BACK_SLASH + get_program_file_name(team_base)
+                fill_cell_link(sheet.cell(row, column=5), str(team.work_name), link_file)
 
-            # 累加和
-            cell = sheet.cell(row, column=10)
-            cell.value = "=SUM({}:{})".format("F" + str(row), "I" + str(row))
-            cell.alignment = Alignment(horizontal='center', vertical='center', wrapText=True)
-            font = Font('Times New Roman', color='000000', bold=False, size=FONT_SIZE)
-            cell.font = font
+                # 累加和
+                cell = sheet.cell(row, column=10)
+                cell.value = "=SUM({}:{})".format("F" + str(row), "I" + str(row))
+                cell.alignment = Alignment(horizontal='center', vertical='center', wrapText=True)
+                font = Font('Times New Roman', color='000000', bold=False, size=FONT_SIZE)
+                cell.font = font
 
-            sheet.row_dimensions[row].height = 100
-            row += 1
+                sheet.row_dimensions[row].height = 100
+                row += 1
 
     wb.save(workbook_path)
 
@@ -94,12 +97,11 @@ def write_to_score_sheet(race_dict, workbook_path, file_base):
 def get_program_file_name(work_dir) -> str:
     for file in os.listdir(work_dir):
         tail = os.path.splitext(file)[-1][1:]
-        if file.__contains__("申报书"):
-            return file
-        elif tail == "pdf":
+        if file.__contains__("申报书") and tail == "pdf":
             return file
 
     print("Error in find program file: " + str(work_dir))
+    return ''
 
 
 def read_namelist_to_team(workbook_path) -> dict:
