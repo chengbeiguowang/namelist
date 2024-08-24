@@ -44,6 +44,7 @@ def compute_dex_score(root_dir):
 def compute_race_score(race_name, race_dir, summary_table):
     count = 0
     total_dict = dict()
+    print(race_name)
     for score_table in os.listdir(race_dir):
         table_dict = read_score_table(race_dir + BACK_SLASH + str(score_table))
         total_dict.update(table_dict)
@@ -108,7 +109,7 @@ def read_score_table(score_table_path) -> dict:
     table_dict = {}
     count = 0
 
-    expert_name = sheet.cell(2, column=1).value.split(':')[1]
+    expert_name = sheet.cell(2, column=1).value.split(':')[1].strip()
 
     team_array = []
 
