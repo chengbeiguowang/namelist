@@ -4,6 +4,9 @@ import openpyxl
 from openpyxl.styles import Alignment
 from openpyxl.styles import Font
 
+import math
+import re
+
 from dexnamelist import Team
 from namelist import clean_up
 from utils import fill_cell
@@ -90,16 +93,31 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
         column += 1
 
     fill_cell(sheet.cell(1, column=11), '平均分')
+    fill_cell(sheet.cell(1, column=12), '掐头去尾平均')
 
     for i in range(2, 1 + size + 1):
         sum_value = float(0)
+        float_array = []
         for j in range(6, 11):
+            float_array.append(sheet.cell(i, j).value)
             sum_value += float(sheet.cell(i, j).value)
 
         avg = sum_value / 5
         fill_cell(sheet.cell(i, column=11), str(avg))
 
+        float_array.sort()
+        without_ends_avg = round((float_array[1] + float_array[2] + float_array[3]) / 3, 2)
+        fill_cell(sheet.cell(i, column=12), str(without_ends_avg))
+
     wb.save(summary_table)
+
+
+def is_float(str):
+    pattern = r'^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$'
+    if re.match(pattern, str):
+        return True
+    else:
+        return False
 
 
 def read_score_table(score_table_path) -> dict:
@@ -136,7 +154,7 @@ def read_score_table(score_table_path) -> dict:
         team_item['team_name'] = team_name
         team_item['work_name'] = work_name
         team_item['score'] = score
-        if not score.isdigit():
+        if not (score.isdigit() or is_float(score)):
             print("not number:" + str(team_item))
 
         team_array.append(team_item)
