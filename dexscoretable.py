@@ -5,6 +5,8 @@ from openpyxl.styles import Alignment
 from openpyxl.styles import Font
 
 from dexnamelist import Team
+from namelist import clean_up
+from utils import fill_cell
 
 BACK_SLASH = "\\"
 
@@ -32,20 +34,58 @@ class DexTeam(Team):
 
 
 def compute_dex_score(root_dir):
+    summary_table = root_dir + BACK_SLASH + '汇总表.xlsx'
     for race in race_array:
         score_table_base = root_dir + BACK_SLASH + race
         if os.path.isdir(score_table_base):
-            compute_race_score(score_table_base)
+            compute_race_score(race, score_table_base, summary_table)
 
 
-def compute_race_score(race_dir):
+def compute_race_score(race_name, race_dir, summary_table):
     count = 0
+    total_dict = dict()
     for score_table in os.listdir(race_dir):
-        read_score_table(race_dir + BACK_SLASH + str(score_table))
+        table_dict = read_score_table(race_dir + BACK_SLASH + str(score_table))
+        total_dict.update(table_dict)
         count += 1
 
     if count != 5:
         print("error in score table num:" + str(count) + " path:" + race_dir)
+
+    write_score_to_summary_table(total_dict, summary_table, race_name)
+
+
+def write_score_to_summary_table(total_dict, summary_table, race_name):
+    wb = openpyxl.load_workbook(summary_table)
+    sheet = wb[race_name]
+    clean_up(sheet, 1, 12)
+
+    ### write header
+    fill_cell(sheet.cell(1, column=1), '序号')
+    fill_cell(sheet.cell(1, column=2), '赛道名称')
+    fill_cell(sheet.cell(1, column=3), '赛题名称')
+    fill_cell(sheet.cell(1, column=4), '团队名称')
+    fill_cell(sheet.cell(1, column=5), '团队作品')
+
+    column = 6
+
+    for expert_name in total_dict:
+        # 写入专家姓名
+        fill_cell(sheet.cell(1, column=column), expert_name)
+        score_array = total_dict[expert_name]
+        row = 2
+        index = 0
+        for item in score_array:
+            fill_cell(sheet.cell(row + index, column=1), item['num'])
+            fill_cell(sheet.cell(row + index, column=2), item['race_name'])
+            fill_cell(sheet.cell(row + index, column=3), item['race_partition'])
+            fill_cell(sheet.cell(row + index, column=4), item['team_name'])
+            fill_cell(sheet.cell(row + index, column=5), item['work_name'])
+            fill_cell(sheet.cell(row + index, column=column), item['score'])
+            index += 1
+
+        column += 1
+    wb.save(summary_table)
 
 
 def read_score_table(score_table_path) -> dict:
@@ -92,6 +132,7 @@ def read_score_table(score_table_path) -> dict:
         row += 1
         cell = sheet.cell(row, column=1)
 
+    table_dict[expert_name] = team_array
     print("专家：" + str(expert_name) + " item count:" + str(count))
 
     return table_dict
