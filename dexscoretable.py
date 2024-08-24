@@ -68,6 +68,7 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
     fill_cell(sheet.cell(1, column=5), '团队作品')
 
     column = 6
+    size = 0
 
     for expert_name in total_dict:
         # 写入专家姓名
@@ -75,16 +76,28 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
         score_array = total_dict[expert_name]
         row = 2
         index = 0
+        size = len(score_array)
         for item in score_array:
             fill_cell(sheet.cell(row + index, column=1), item['num'])
             fill_cell(sheet.cell(row + index, column=2), item['race_name'])
             fill_cell(sheet.cell(row + index, column=3), item['race_partition'])
             fill_cell(sheet.cell(row + index, column=4), item['team_name'])
             fill_cell(sheet.cell(row + index, column=5), item['work_name'])
-            fill_cell(sheet.cell(row + index, column=column), item['score'])
+            fill_cell(sheet.cell(row + index, column=column), float(item['score']))
             index += 1
 
         column += 1
+
+    fill_cell(sheet.cell(1, column=11), '平均分')
+
+    for i in range(2, 1 + size + 1):
+        sum_value = float(0)
+        for j in range(6, 11):
+            sum_value += float(sheet.cell(i, j).value)
+
+        avg = sum_value / 5
+        fill_cell(sheet.cell(i, column=11), str(avg))
+
     wb.save(summary_table)
 
 
@@ -96,7 +109,6 @@ def read_score_table(score_table_path) -> dict:
     count = 0
 
     expert_name = sheet.cell(2, column=1).value.split(':')[1]
-    print(expert_name)
 
     team_array = []
 
