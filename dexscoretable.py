@@ -71,7 +71,7 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
     fill_cell(sheet.cell(1, column=4), '团队名称')
     fill_cell(sheet.cell(1, column=5), '团队作品')
 
-    column = 6
+    score_column_start = column = 6
     size = 0
 
     for expert_name in total_dict:
@@ -92,22 +92,26 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
 
         column += 1
 
-    fill_cell(sheet.cell(1, column=11), '平均分')
-    fill_cell(sheet.cell(1, column=12), '掐头去尾平均')
+    avg_column = column
+    fill_cell(sheet.cell(1, column=avg_column), '平均分')
+    without_ends_avg_column = column + 1
+    fill_cell(sheet.cell(1, column=without_ends_avg_column), '掐头去尾平均')
 
     for i in range(2, 1 + size + 1):
         sum_value = float(0)
         float_array = []
-        for j in range(6, 11):
+        for j in range(score_column_start, avg_column):
             float_array.append(sheet.cell(i, j).value)
             sum_value += float(sheet.cell(i, j).value)
 
-        avg = sum_value / 5
-        fill_cell(sheet.cell(i, column=11), str(avg))
+        # 计算平均数
+        avg = sum_value / (avg_column - score_column_start)
+        fill_cell(sheet.cell(i, column=avg_column), str(avg))
 
+        # 计算掐头去尾平均数
         float_array.sort()
         without_ends_avg = round((float_array[1] + float_array[2] + float_array[3]) / 3, 2)
-        fill_cell(sheet.cell(i, column=12), str(without_ends_avg))
+        fill_cell(sheet.cell(i, column=without_ends_avg_column), str(without_ends_avg))
 
     wb.save(summary_table)
 
