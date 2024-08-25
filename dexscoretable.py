@@ -1,15 +1,10 @@
 import os.path
 
 import openpyxl
-from openpyxl.styles import Alignment
-from openpyxl.styles import Font
 
-import math
-import re
-
-from dexnamelist import Team
+from math_utils import is_float
 from namelist import clean_up
-from utils import fill_cell
+from utils import fill_cell, fill_cell_if_empty
 
 BACK_SLASH = "\\"
 
@@ -25,15 +20,6 @@ race_array = ['工业制造',
               '气象服务',
               '城市治理',
               '绿色低碳']
-
-
-class DexTeam(Team):
-    def __init__(self, name, race_name, race_partition, work_name):
-        super.__init__(name, race_name, race_partition, work_name)
-        self.score = []
-
-    def __str__(self):
-        return str(self.name) + ' ' + str(self.race_name) + ' ' + str(self.race_partition) + ' ' + str(self.work_name)
 
 
 def compute_dex_score(root_dir):
@@ -82,11 +68,11 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
         index = 0
         size = len(score_array)
         for item in score_array:
-            fill_cell(sheet.cell(row + index, column=1), item['num'])
-            fill_cell(sheet.cell(row + index, column=2), item['race_name'])
-            fill_cell(sheet.cell(row + index, column=3), item['race_partition'])
-            fill_cell(sheet.cell(row + index, column=4), item['team_name'])
-            fill_cell(sheet.cell(row + index, column=5), item['work_name'])
+            fill_cell_if_empty(sheet.cell(row + index, column=1), item['num'])
+            fill_cell_if_empty(sheet.cell(row + index, column=2), item['race_name'])
+            fill_cell_if_empty(sheet.cell(row + index, column=3), item['race_partition'])
+            fill_cell_if_empty(sheet.cell(row + index, column=4), item['team_name'])
+            fill_cell_if_empty(sheet.cell(row + index, column=5), item['work_name'])
             fill_cell(sheet.cell(row + index, column=column), float(item['score']))
             index += 1
 
@@ -114,14 +100,6 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
         fill_cell(sheet.cell(i, column=without_ends_avg_column), str(without_ends_avg))
 
     wb.save(summary_table)
-
-
-def is_float(str):
-    pattern = r'^[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?$'
-    if re.match(pattern, str):
-        return True
-    else:
-        return False
 
 
 def read_score_table(score_table_path) -> dict:

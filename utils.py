@@ -3,6 +3,11 @@ from openpyxl.styles import Font
 from openpyxl.worksheet.worksheet import Worksheet
 
 
+def fill_cell_if_empty(cell, content, font_size=16):
+    if cell.value is None:
+        fill_cell(cell, content, font_size)
+
+
 def fill_cell(cell, content, font_size=16):
     cell.value = content
     cell.alignment = Alignment(horizontal='left', vertical='center', wrapText=True)
