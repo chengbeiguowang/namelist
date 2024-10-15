@@ -73,6 +73,13 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
             fill_cell_if_empty(sheet.cell(row + index, column=3), item['race_partition'])
             fill_cell_if_empty(sheet.cell(row + index, column=4), item['team_name'])
             fill_cell_if_empty(sheet.cell(row + index, column=5), item['work_name'])
+            cell = sheet.cell(row + index, column=5)
+            if cell.value is None:
+                fill_cell(cell, item['work_name'])
+            else:
+                if cell.value != item['work_name']:
+                    print(cell.value + " " + item['work_name'] + " do not match")
+
             fill_cell(sheet.cell(row + index, column=column), float(item['score']))
             index += 1
 
@@ -81,7 +88,7 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
     avg_column = column
     fill_cell(sheet.cell(1, column=avg_column), '平均分')
     without_ends_avg_column = column + 1
-    fill_cell(sheet.cell(1, column=without_ends_avg_column), '掐头去尾平均')
+    #fill_cell(sheet.cell(1, column=without_ends_avg_column), '掐头去尾平均')
 
     for i in range(2, 1 + size + 1):
         sum_value = float(0)
@@ -95,9 +102,9 @@ def write_score_to_summary_table(total_dict, summary_table, race_name):
         fill_cell(sheet.cell(i, column=avg_column), str(avg))
 
         # 计算掐头去尾平均数
-        float_array.sort()
-        without_ends_avg = round((float_array[1] + float_array[2] + float_array[3]) / 3, 2)
-        fill_cell(sheet.cell(i, column=without_ends_avg_column), str(without_ends_avg))
+        #float_array.sort()
+        #without_ends_avg = round((float_array[1] + float_array[2] + float_array[3]) / 3, 2)
+        #fill_cell(sheet.cell(i, column=without_ends_avg_column), str(without_ends_avg))
 
     wb.save(summary_table)
 
@@ -121,13 +128,26 @@ def read_score_table(score_table_path) -> dict:
         # 赛道名称
         race_name = sheet.cell(row, column=2).value
         # 赛题名称
-        race_partition = sheet.cell(row, column=3).value
+        race_partition = sheet.cell(row, column=3).value.strip()
         # 团队名称
-        team_name = sheet.cell(row, column=4).value
+        team_name = sheet.cell(row, column=4).value.strip()
         # 团队作品
-        work_name = sheet.cell(row, column=5).value
+        work_name = sheet.cell(row, column=5).value.strip()
+
+        # 校验
+        if not validate(sheet.cell(row, column=6).value, 0, 30):
+            print(expert_name + " " + race_name + " " + team_name + " " + work_name + " ")
+        if not validate(sheet.cell(row, column=7).value, 0, 30):
+            print(expert_name + " " + race_name + " " + team_name + " " + work_name + " ")
+        if not validate(sheet.cell(row, column=8).value, 0, 30):
+            print(expert_name + " " + race_name + " " + team_name + " " + work_name + " ")
+        if not validate(sheet.cell(row, column=9).value, 0, 10):
+            print(expert_name + " " + race_name + " " + team_name + " " + work_name + " ")
+
         # 评分合计
         score = str(sheet.cell(row, column=10).value)
+        if not validate(score, 0, 100):
+            print(expert_name + " " + race_name + " " + team_name + " " + work_name + " " + score)
 
         team_item = dict()
         team_item['num'] = num
@@ -149,3 +169,22 @@ def read_score_table(score_table_path) -> dict:
     print("专家：" + str(expert_name) + " item count:" + str(count))
 
     return table_dict
+
+
+def validate(value, lower, upper):
+    if value is None or value == '':
+        return True
+
+    if type(value) == float:
+        return lower <= value <= upper
+
+    if type(value) == int:
+        return lower <= value <= upper
+
+    if type(value) == str:
+        if is_float(value):
+            return lower <= float(value) <= upper
+        else:
+            return lower <= int(value) <= upper
+
+    return False

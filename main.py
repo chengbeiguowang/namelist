@@ -3,6 +3,7 @@ import os.path
 import sys
 
 from dexnamelist import scdex
+from dexscoretable import compute_dex_score
 
 from lawnamelist import handle_law_namelist
 from namelist import handle_namelist
@@ -21,7 +22,8 @@ xlsx_name_array = [
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    scdex('E:\\tele\\参赛清单汇总整理- 0823@1552.xlsx', 'E:\要素大赛')
+    #scdex('E:\\tele\\参赛清单汇总整理- 0823@1552.xlsx', 'E:\要素大赛')
+    compute_dex_score('E:\评分表')
 
 
 '''
